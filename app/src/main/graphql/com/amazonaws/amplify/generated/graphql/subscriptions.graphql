@@ -1,0 +1,28 @@
+# this is an auto generated file. This will be overwritten
+subscription OnCreateRecipe {
+  onCreateRecipe {
+    id
+    recipeName
+    description
+    photo
+    owner
+  }
+}
+subscription OnUpdateRecipe {
+  onUpdateRecipe {
+    id
+    recipeName
+    description
+    photo
+    owner
+  }
+}
+subscription OnDeleteRecipe {
+  onDeleteRecipe {
+    id
+    recipeName
+    description
+    photo
+    owner
+  }
+}
