@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">Kumba</string>
     <string name="action_settings">Settings</string>
+    <string name="upd_ingredients_list">Add Ingredients Here</string>
+    <string name="upd_steps_list">steps</string>
     <string name="title_activity_add_recipe">Add Recipes</string>
+    <string name="title_activity_update_recipe">Update Recipes</string>
     <string name="title_activity_display_recipe">Kumba</string>
+    <string name="hint_enter_Ingredients">Enter Ingredients here!</string>
+    <string name="hint_enter_steps">Enter Steps here!</string>
 </resources>
