@@ -1,6 +1,9 @@
 package com.example.pradh.demoapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -21,6 +24,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -32,6 +36,7 @@ import type.CreateRecipeInput;
 public class addRecipeActivity extends AppCompatActivity {
 
     private String TAG = "addRecipeActivity";
+    private String currentRecipeId = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +70,8 @@ public class addRecipeActivity extends AppCompatActivity {
                 .description(description)
                 .photo("null")
                 .owner(AWSMobileClient.getInstance().getUsername())
+                .ingredients(Collections.<String>emptyList())
+                .steps(Collections.<String>emptyList())
                 .build();
         CreateRecipeMutation addRecipeMutation = CreateRecipeMutation.builder().input(input).build();
 
@@ -83,7 +90,9 @@ public class addRecipeActivity extends AppCompatActivity {
                         input.recipeName(),
                         input.description(),
                         input.photo(),
-                        input.owner());
+                        input.owner(),
+                        input.ingredients(),
+                        input.steps());
 
         final AWSAppSyncClient awsAppSyncClient = ClientFactory.appSyncClient();
         final ListRecipesQuery listEventsQuery = ListRecipesQuery.builder().build();
@@ -108,10 +117,13 @@ public class addRecipeActivity extends AppCompatActivity {
                                     expected.recipeName(),
                                     expected.description(),
                                     expected.owner(),
-                                    expected.photo()));
+                                    expected.photo(),
+                                    expected.ingredients(),
+                                    expected.steps()));
                             ListRecipesQuery.Data data = new ListRecipesQuery.Data(new ListRecipesQuery.ListRecipes("ModelRecipeconnection", items, null));
                             awsAppSyncClient.getStore().write(listEventsQuery, data).enqueue(null);
-                            Log.d(TAG, "successfullywritten data while offline");
+                            Log.d(TAG, "successfully added data while offline");
+                            currentRecipeId = expected.id();
                             finishIfOffline();
                         }
 
@@ -147,7 +159,7 @@ public class addRecipeActivity extends AppCompatActivity {
                @Override
                public void run() {
                    Toast.makeText(addRecipeActivity.this, "Added Recipe", Toast.LENGTH_SHORT).show();
-                   addRecipeActivity.this.finish();
+                   addRecipeActivity.this.finish();//showMoreInputsDialog(currentRecipeId);
                }
            });
         }
@@ -164,4 +176,35 @@ public class addRecipeActivity extends AppCompatActivity {
             });
         }
     };
+
+
+    /**
+     * Opens dialog with  option to add steps and ingredients
+     * We are going to save the current input and open as update for adding ingredients and steps
+     * So that even if the user navigates through back button, saved items are still present
+     * Yes - 0
+     * No - 1
+     */
+
+    private void showMoreInputsDialog(final String RecipeId) {
+        CharSequence options[] = new CharSequence[]{"Yes - Let's add recipe", "No - Save the recipe"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Would you like to add Ingredients?");
+        builder.setItems(options, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    Log.i(TAG, "should go to ingredients activity for "+RecipeId);
+                    Intent intent = new Intent(getApplicationContext(), updateRecipeActivity.class);
+                    intent.putExtra("add_key", RecipeId);
+                    startActivityForResult(intent,1);//addRecipeActivity.this.finish();
+                }else{
+                    addRecipeActivity.this.finish();
+                }
+
+            }
+        });
+        builder.show();
+    }
 }

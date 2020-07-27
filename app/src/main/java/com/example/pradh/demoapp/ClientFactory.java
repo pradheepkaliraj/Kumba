@@ -15,7 +15,7 @@ import com.amazonaws.mobileconnectors.appsync.sigv4.CognitoUserPoolsAuthProvider
  */
 
 public class ClientFactory {
-    private static  volatile AWSAppSyncClient client; //Java volatile keyword guarantees visibility of changes to variables across threads. This may sound a bit abstract, so let me elaborate
+    private static  volatile AWSAppSyncClient client; //Java volatile keyword guarantees visibility of changes to variables across threads.
 
     public static synchronized void init (final Context context){
         if(client == null){

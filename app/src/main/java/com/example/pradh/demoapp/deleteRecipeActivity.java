@@ -25,14 +25,9 @@ public class deleteRecipeActivity extends AppCompatActivity {
         if(extras!=null){recipeInfo = extras.getString("main_key");}
         Toast.makeText(deleteRecipeActivity.this, "deleteRecipeActivity        :"+recipeInfo,
                 Toast.LENGTH_LONG).show();
-        //finish();
-        findRecipe();
         deleteRecipe();
     }
 
-    private void findRecipe() {
-
-    }
 
     private void deleteRecipe() {
         DeleteRecipeInput  input = DeleteRecipeInput.builder()

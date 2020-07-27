@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +19,8 @@ import android.widget.Toast;
 import com.amazonaws.amplify.generated.graphql.ListRecipesQuery;
 import com.amazonaws.amplify.generated.graphql.OnCreateRecipeSubscription;
 import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobile.client.UserStateDetails;
+import com.amazonaws.mobile.client.UserStateListener;
 import com.amazonaws.mobileconnectors.appsync.AppSyncSubscriptionCall;
 import com.amazonaws.mobileconnectors.appsync.fetcher.AppSyncResponseFetchers;
 import com.apollographql.apollo.GraphQLCall;
@@ -45,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mRecyclerView = findViewById(R.id.recycler_view);
-
+        Toolbar toolbar = findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar); //Sets Text and 3 dot button
 
         mManager = new StaggeredGridLayoutManager(2, LinearLayoutManager.VERTICAL);
         if(mRecyclerView!=null) {
@@ -68,6 +72,36 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent addRecipeIntent = new Intent(MainActivity.this, addRecipeActivity.class);
                 MainActivity.this.startActivity(addRecipeIntent);
+            }
+        });
+
+
+        /**listener function to fix expired token issue*/
+        AWSMobileClient.getInstance().addUserStateListener(new UserStateListener() {
+            @Override
+            public void onUserStateChanged(UserStateDetails userStateDetails) {
+                switch (userStateDetails.getUserState()){
+                    case SIGNED_OUT:
+                        // user clicked signout button and signedout
+                        Log.i("userState", "user signed out");
+                        Intent intent_user_so = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                        startActivity(intent_user_so);
+                        break;
+                    case SIGNED_OUT_USER_POOLS_TOKENS_INVALID:
+                        AWSMobileClient.getInstance().refresh();
+                        Log.i("userState", "need to login again.SIGNED_OUT_USER_POOLS_TOKENS_INVALID");
+                        Intent intent_so = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                        startActivity(intent_so);
+                        break;
+                    case SIGNED_OUT_FEDERATED_TOKENS_INVALID:
+                        AWSMobileClient.getInstance().signOut();
+                        Log.i("userState", "need to login again SIGNED_OUT_FEDERATED_TOKENS_INVALID.");
+                        Intent intent_fo = new Intent(getApplicationContext(), AuthenticationActivity.class);
+                        startActivity(intent_fo);
+                        break;
+                    default:
+                        Log.i("addUserStateListener", "Default state "+userStateDetails.getUserState().toString() );
+                }
             }
         });
 
@@ -115,9 +149,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 1) {
                     showDeleteDialog(position);
+                } else{
+                    Log.i(TAG, "should go to ingredients activity for "+position);
+                    Intent intent = new Intent(getApplicationContext(), updateRecipeActivity.class);
+                    intent.putExtra("add_key",  mRecipe.get(position).id());
+                    startActivityForResult(intent,1);
                 }
             }
-        });
+        }); //todo add update
         builder.show();
     }
 
@@ -149,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void query(){
         ClientFactory.appSyncClient().query(ListRecipesQuery.builder().build())
-                .responseFetcher(AppSyncResponseFetchers.CACHE_AND_NETWORK)
+                .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
                 .enqueue(queryCallback);
     }
 
@@ -160,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
             mRecipe = new ArrayList<>(response.data().listRecipes().items());
 
             Log.i(TAG, "Retrieved list items: " + mRecipe.toString());
+            Log.i(TAG, "Retrieved list size: " + mRecipe.size());
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -190,12 +230,13 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_signout) {
+            Toast.makeText(MainActivity.this, "Single Click on Sign Out        :"+id,
+                    Toast.LENGTH_SHORT).show();
+            AWSMobileClient.getInstance().signOut();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -217,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
             //Update UI with newly added item
             OnCreateRecipeSubscription.OnCreateRecipe data = ((OnCreateRecipeSubscription.Data)response.data()).onCreateRecipe();
-            final ListRecipesQuery.Item addedItem = new ListRecipesQuery.Item(data.__typename(), data.id(), data.recipeName(), data.description(), data.photo(), data.owner());
+            final ListRecipesQuery.Item addedItem = new ListRecipesQuery.Item(data.__typename(), data.id(), data.recipeName(), data.description(), data.photo(), data.owner(), data.ingredients(),data.steps());
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -245,6 +286,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         subscriptionWatcher.cancel();
     }
+
 
 
 

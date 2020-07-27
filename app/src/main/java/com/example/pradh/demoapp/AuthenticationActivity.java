@@ -32,6 +32,14 @@ public class AuthenticationActivity extends AppCompatActivity {
                     case SIGNED_OUT:
                         ShowSignIn();
                         break;
+                    case SIGNED_OUT_USER_POOLS_TOKENS_INVALID:
+                        Log.i("userState", "need to login again.");
+                        ShowSignIn();
+                        break;
+                    case SIGNED_OUT_FEDERATED_TOKENS_INVALID:
+                        Log.i("userState", "need to login again.");
+                        ShowSignIn();
+                        break;
                     default:
                         AWSMobileClient.getInstance().signOut();
                         ShowSignIn();
@@ -45,7 +53,7 @@ public class AuthenticationActivity extends AppCompatActivity {
             }
         });
 
-    }
+     }
 
     private void findUserName() {
         Log.i(TAG, "Signed in user: "+AWSMobileClient.getInstance().getUsername());
