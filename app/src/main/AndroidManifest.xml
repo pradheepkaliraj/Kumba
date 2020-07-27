@@ -33,15 +33,20 @@
         </activity>
         <activity
             android:name=".deleteRecipeActivity"
-            android:theme="@style/Theme.AppCompat"/> //activity without display
+            android:theme="@style/Theme.AppCompat" />
+        //activity without display
         <activity
             android:name=".addRecipeActivity"
             android:label="@string/title_activity_add_recipe"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:name=".updateRecipeActivity"
+            android:label="@string/title_activity_update_recipe"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name=".displayRecipeActivity"
             android:label="@string/title_activity_display_recipe"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
