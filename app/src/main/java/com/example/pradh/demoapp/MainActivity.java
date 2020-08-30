@@ -117,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Single Click on position        :"+position,
                         Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(getApplicationContext(), displayRecipeActivity.class);
-                //intent.putExtra(EXTRA_MESSAGE, myCountry);
+                Log.i(TAG, "Clicked recipe "+ mRecipe.get(position).id());
+                intent.putExtra("recipePos", mRecipe.get(position).id());
                 startActivity(intent);
             }
 

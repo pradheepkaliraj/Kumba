@@ -24,7 +24,6 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -37,11 +36,15 @@ public class addRecipeActivity extends AppCompatActivity {
 
     private String TAG = "addRecipeActivity";
     private String currentRecipeId = "";
+    private List <String> Ingredients;
+    private List <String> Steps;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_recipe);
-
+        Ingredients = new ArrayList<>();
+        Steps = new ArrayList<String>();
         Button btnAddItem = findViewById(R.id.btn_save);
         btnAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,14 +67,18 @@ public class addRecipeActivity extends AppCompatActivity {
     private void save() {
         final String name = ((EditText) findViewById(R.id.editTxt_name)).getText().toString();
         final String description = ((EditText) findViewById(R.id.editText_description)).getText().toString();
+        Ingredients.add("Dummy Ingredient");
+        Ingredients.add("Dummy Ingredient 2");
+        Steps.add("Dummy step");
+        Steps.add("Dummy step 2");
 
         CreateRecipeInput input = CreateRecipeInput.builder()
                 .recipeName(name)
                 .description(description)
                 .photo("null")
                 .owner(AWSMobileClient.getInstance().getUsername())
-                .ingredients(Collections.<String>emptyList())
-                .steps(Collections.<String>emptyList())
+                .ingredients(Ingredients)
+                .steps(Steps)
                 .build();
         CreateRecipeMutation addRecipeMutation = CreateRecipeMutation.builder().input(input).build();
 

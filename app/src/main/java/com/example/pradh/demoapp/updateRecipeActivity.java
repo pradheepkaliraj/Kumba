@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,7 +19,7 @@ import com.apollographql.apollo.GraphQLCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import javax.annotation.Nonnull;
 
@@ -27,36 +28,26 @@ import type.UpdateRecipeInput;
 public class updateRecipeActivity extends AppCompatActivity {
 
     private  String currentRecipeId;
-    private GetRecipeQuery.Data mRecipe;
-    private List<String> Steps;
-    private List<String> Ingredients;
+    public GetRecipeQuery.Data mRecipe;
+    private ArrayList Steps;
+    private ArrayList Ingredients = new ArrayList<String>();
     private static final String TAG = "updateRecipeActivity";
-    TextView recipeName;
-    TextView recipeDesc;
-    ListView recipeIngredients;
-    ListView recipeSteps;
-    ArrayAdapter<String> stepsAdapter;
-    ArrayAdapter<String> ingredientsAdapter;
+    private TextView recipeName;
+    private TextView recipeDesc;
+    private ListView recipeIngredients;
+    private ArrayAdapter<String> ingredientsAdapter;
 
-
-
-    //String[] ingredients =  new String[] {"salt", "sugar", "spice",  "and everything nice", "also chemicalx"};
-    //String[] steps =  new String[] {"get pot", "add water", "add ingred",  "and heat", "watch it burn"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_update_recipe);
-
         recipeName = findViewById(R.id.upd_txt_name);
         recipeDesc = findViewById(R.id.upd_txt_description);
         recipeIngredients = findViewById(R.id.upd_ingredients_list);
-        recipeSteps = findViewById(R.id.upd_steps_list);
 
         /**setting adapters for the list views*/
-        //ingredientsAdapter = new ArrayAdapter<String>(this, R.layout.activity_update_recipe, Ingredients);
-        //stepsAdapter = new ArrayAdapter<String>(this, R.layout.activity_update_recipe, Steps);
-        //recipeIngredients.setAdapter(ingredientsAdapter);
-        //recipeSteps.setAdapter(stepsAdapter);
+        ingredientsAdapter = new ArrayAdapter(this, R.layout.update_ingredients_listview, R.id.upd_ingredients_list_item, Ingredients);
+        recipeIngredients.setAdapter(ingredientsAdapter);
 
         Button btnCancel = findViewById(R.id.btn_upd_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -74,21 +65,33 @@ public class updateRecipeActivity extends AppCompatActivity {
             }
         });
 
+        ImageButton btnAdd = findViewById(R.id.addImageButton);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            EditText ingrAdd = findViewById(R.id.new_list_Ingredient);
+            @Override
+            public void onClick(View v) {
+                Ingredients.add(ingrAdd.getText().toString()); //add text from edit text to list
+                ingredientsAdapter.clear(); //clear existing list
+                ingredientsAdapter.addAll(Ingredients); //add new list to adapter
+                ingredientsAdapter.notifyDataSetChanged();
+                ingrAdd.getText().clear();
+            }
+        });
+
         Bundle extras = getIntent().getExtras();
         if(extras!=null){currentRecipeId = extras.getString("add_key");}
         //Get the recipe to be updated
         getRecipe(currentRecipeId);
 
+    } //end of onCreate
 
-
-    }
-    private void getRecipe(String recipeId) {
+    public  void getRecipe(String recipeId) {
         ClientFactory.appSyncClient().query(GetRecipeQuery.builder().id(recipeId).build())
                 .responseFetcher(AppSyncResponseFetchers.NETWORK_FIRST)
                 .enqueue(queryCallback);
     }
 
-    private GraphQLCall.Callback<GetRecipeQuery.Data> queryCallback = new GraphQLCall.Callback<GetRecipeQuery.Data>() {
+    public GraphQLCall.Callback<GetRecipeQuery.Data> queryCallback = new GraphQLCall.Callback<GetRecipeQuery.Data>() {
         @Override
         public void onResponse(@Nonnull Response<GetRecipeQuery.Data> response) {
             mRecipe = response.data();
@@ -98,16 +101,11 @@ public class updateRecipeActivity extends AppCompatActivity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Steps = mRecipe.getRecipe().steps();
-                    Ingredients = mRecipe.getRecipe().ingredients();
-                    //ingredientsAdapter.addAll(Ingredients);
-                    //ingredientsAdapter.notifyDataSetChanged();
-                    //stepsAdapter.addAll(Steps);
-                    //ingredientsAdapter.notifyDataSetChanged();
+                    Steps = new ArrayList(mRecipe.getRecipe().steps());
+                    Ingredients = new ArrayList(mRecipe.getRecipe().ingredients());
+                    ingredientsAdapter.addAll(Ingredients);
                     recipeName.setText(mRecipe.getRecipe().recipeName());
                     recipeDesc.setText(mRecipe.getRecipe().description());
-                    Toast.makeText(updateRecipeActivity.this, "GOT   :"+mRecipe.getRecipe().recipeName(),
-                            Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -118,19 +116,23 @@ public class updateRecipeActivity extends AppCompatActivity {
         }
     };
 
-     /*   GetRecipeQuery input = builder().id(currentRecipeId).build(); }*/
-
 
     private void updateRecipe() {
         final String recipeName = ((EditText) findViewById(R.id.upd_txt_name)).getText().toString();
         final String Description = ((EditText) findViewById(R.id.upd_txt_description)).getText().toString();
-        //final List<String> Steps = (List<String>) findViewById(R.id.upd_steps_list);
-        //final List<String> Ingredients = ((List<String>) findViewById(R.id.upd_ingredients_list));
-
+        final ArrayList updIngredients = new ArrayList();
+        int ingrSize = ingredientsAdapter.getCount();
+        for (int i=0; i<ingrSize;i++){
+            View view= recipeIngredients.getChildAt(i);
+            EditText editText=view.findViewById(R.id.upd_ingredients_list_item);
+            updIngredients.add(i,editText.getText().toString());}
+        Toast.makeText(updateRecipeActivity.this, "Final   :"+updIngredients.size(),
+                Toast.LENGTH_SHORT).show();
         UpdateRecipeInput input = UpdateRecipeInput.builder()
                 .id(currentRecipeId)
                 .recipeName(recipeName)
-                .description(Description).build();
+                .description(Description)
+                .ingredients(updIngredients).build();
         UpdateRecipeMutation updateRecipeMutation = UpdateRecipeMutation.builder().input(input).build();
         ClientFactory.appSyncClient().mutate(updateRecipeMutation).enqueue(updateCallback);
     }
@@ -160,5 +162,7 @@ public class updateRecipeActivity extends AppCompatActivity {
             });
         }
     };
+
+
 }
 

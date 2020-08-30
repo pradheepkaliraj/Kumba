@@ -6,6 +6,8 @@ query GetRecipe($id: ID!) {
     description
     photo
     owner
+    ingredients
+    steps
   }
 }
 query ListRecipes(
@@ -20,6 +22,8 @@ query ListRecipes(
       description
       photo
       owner
+      ingredients
+      steps
     }
     nextToken
   }

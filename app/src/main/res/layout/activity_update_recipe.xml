@@ -1,10 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ScrollView01"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:scrollbars="vertical">
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -26,24 +20,35 @@
         android:textColor="#000"/>
     <ListView
         android:id="@+id/upd_ingredients_list"
-        android:background="@android:color/transparent"
         android:autofillHints="@string/hint_enter_Ingredients"
-        android:inputType="textCapSentences|textMultiLine"
-        android:textColorHint="@color/hint_enter_Ingredients"
-        android:layout_marginTop="10dp"
-        android:layout_height="match_parent"
-        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
         />
-    <ListView
-        android:id="@+id/upd_steps_list"
-        android:layout_marginTop="10dp"
-        android:background="@android:color/transparent"
-        android:autofillHints="@string/hint_enter_steps"
-        android:inputType="textCapSentences|textMultiLine"
-        android:textColorHint="@color/hint_enter_steps"
-        android:layout_height="match_parent"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        />
+        android:layout_height="wrap_content">
+    <EditText
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:hint="Enter new Ingredients ...."
+        android:id="@+id/new_list_Ingredient"
+        android:padding="10dip"
+        android:textSize="16dip"
+        android:layout_marginTop="10dp"
+        android:textColor="#000"/>
+    <ImageButton
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:id="@+id/addImageButton"
+        android:layout_toRightOf="@id/new_list_Ingredient"
+        android:contentDescription=""
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/plus"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,7 +59,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btn_upd_cancel"
+        android:layout_toRightOf="@id/btn_upd_save"
         android:layout_marginTop="15dp"
         android:text="Cancel"/>
+    </RelativeLayout>
 </LinearLayout>
-</ScrollView>

@@ -6,6 +6,8 @@ subscription OnCreateRecipe {
     description
     photo
     owner
+    ingredients
+    steps
   }
 }
 subscription OnUpdateRecipe {
@@ -15,6 +17,8 @@ subscription OnUpdateRecipe {
     description
     photo
     owner
+    ingredients
+    steps
   }
 }
 subscription OnDeleteRecipe {
@@ -24,5 +28,7 @@ subscription OnDeleteRecipe {
     description
     photo
     owner
+    ingredients
+    steps
   }
 }

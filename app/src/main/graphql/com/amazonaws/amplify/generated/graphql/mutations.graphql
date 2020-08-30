@@ -9,6 +9,8 @@ mutation CreateRecipe(
     description
     photo
     owner
+    ingredients
+    steps
   }
 }
 mutation UpdateRecipe(
@@ -21,6 +23,8 @@ mutation UpdateRecipe(
     description
     photo
     owner
+    ingredients
+    steps
   }
 }
 mutation DeleteRecipe(
@@ -33,5 +37,7 @@ mutation DeleteRecipe(
     description
     photo
     owner
+    ingredients
+    steps
   }
 }
